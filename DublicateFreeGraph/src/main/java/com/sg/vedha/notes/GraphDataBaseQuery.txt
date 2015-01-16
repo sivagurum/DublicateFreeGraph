@@ -1,0 +1,194 @@
+1) Clear All DataBase
+Syntax:
+	DELETE <node1-name>,<node2-name>,<relationship-name>
+Ex:
+1.1)	MATCH (n)
+	OPTIONAL MATCH (n)-[r]-()
+	DELETE n, r
+1.2)	MATCH (cust:Customer)
+	DELETE cust
+2) CQL - Create Node Without Properties
+
+2.i)  Create(<node-name>:<lable-name>)
+
+2.ii) Create(<node-name>:<lable-name1,lable-name2,...,lable-namen>)
+
+CREATE		-	It is a Neo4j CQL Command.
+<node-name>	-	It is a node name we are going to create.
+			Neo4j Database Server uses this <node-name> to store this node details in Database.
+			As a Neo4j DBA or Developer, we cannot use it to access node details.
+<label-name>	-	It is a node label name.
+			Neo4j Database Server creates a <label-name> as an alias to internal node name.
+			As a Neo4j DBA or Developer, we should use this label name to access node details.
+
+Ex: CREATE(emp:Employee)
+    CREATE (m:Movie:Cinema:Film:Picture)
+
+3) CQL - Create Node With Properties
+CREATE (
+   <node-name>:<label-name>
+   { 	
+      <Property1-name>:<Property1-Value>
+      ........
+      <Propertyn-name>:<Propertyn-Value>
+   }
+)
+
+Property-name	-	Properties are key-value pairs. defines the name of the property which is going to assign to a creating Node.
+Property-value	-	Properties are key-value pairs. defines the value of the property which is going to assign to a creating Node.
+
+Ex: CREATE(dept:Department{deptno:10,dname:"Accounting",location:"Hyderapath"})
+
+4) CQL - MATCH command
+To get data about nodes and properties from database
+To get data about nodes, relationships and properties from database
+
+MATCH 
+(
+   <node-name>:<label-name>
+)
+RETURN 
+   <node-name>.<property1-name>
+   
+
+Ex:	MATCH (dept:Department) RETURN dept
+	MATCH (dept:Department) RETURN dept.dname,dept.location
+	Match (n) return n
+
+5) CQL - Create Relationship with Existing Node
+
+MATCH (<node1-label-name>:<node1-name>),(<node2-label-name>:<node2-name>)
+CREATE  
+	(<node1-label-name>)-[<relationship-label-name>:<relationship-name>
+	{<define-properties-list>}]->(<node2-label-name>)
+RETURN <relationship-label-name>
+
+5.1) Customer
+CREATE (e:Customer{id:"1001",name:"Abc",dob:"01/10/1982"})
+5.2) CreditCard
+CREATE (cc:CreditCard{id:"5001",name:"HDFC",number:"1234567890",cvv:"888",expiredate:"20/17"})
+
+Customer -> CreditCard
+
+Ex: 
+5.3) With Out Properties
+	Match (c:Customer),(cc:CreditCard)
+	Create (c)-[DSW:DO_SHOPPINg_WITH]->(cc)
+	return DSW
+5.4) With Properties
+	MATCH (cust:Customer),(cc:CreditCard) 
+	CREATE (cust)-[r:DO_SHOPPING_WITH{shopdate:"12/12/2014",price:55000}]->(cc) 
+	RETURN r
+5.5) Match 
+	5.5.1)	MATCH (c)-[dsw]->(cc)
+		RETURN dsw
+
+	5.5.2)	MATCH (Customer)-[re]->(CreditCard) 
+		RETURN re
+
+6) CQL - Create Node with Relationship
+Ex:
+6.1)	CREATE(fb:sivafacebook)-[like:Likes]->(fb2:jonesfacebook) 
+	RETURN like
+6.2)	CREATE (video1:YoutubeVideo1{title:"Action Movie1",updated_by:"Abc",uploaded_date:"10/10/2010"})
+	-[movie:ACTION_MOVIES{rating:1}]->
+	(video2:YoutubeVideo2{title:"Action Movie2",updated_by:"Xyz",uploaded_date:"12/12/2012"})
+
+7) CQL - Simple Where Class
+WHERE <condition> <boolean-operator> <condition>
+
+7.1) CREATE	(emp:Employee{empid:1001,name:'Abc',salary:25000,deptno:10}),
+	(emp1:Employee{empid:1002,name:'Pqr',salary:45000,deptno:20}),
+	(emp2:Employee{empid:1003,name:'Mno',salary:5000,deptno:10}),
+	(emp3:Employee{empid:1004,name:'Xyz',salary:15000,deptno:30})
+	RETURN emp,emp1,emp2,emp3
+
+7.2) CREATE (cc:CreditCard{id:5001,name:"HDFC",number:123456789,expiredate:"12/12/1980",cvv:551}) RETURN cc
+
+7.3)	MATCH (emp:Employee)
+	WHERE emp.name = 'Abc' OR emp.name = 'Xyz' 
+	RETURN emp
+7.4)	MATCH (emp:Employee) WHERE emp.salary <= 25000 RETURN emp
+7.5)	Create Relationship using Where Command :
+	MATCH (emp:Employee),(cc:CreditCard)
+	Where emp.empid=1001 AND cc.id=5001
+	CREATE (emp)-[ret:DO_SHOP_WITH{shopdate:'01/06/2015',cost:5000}]->(cc)
+	RETURN ret
+7.6)	Get only the Employee whose names end with "z"	:
+	MATCH (emp:Employee)
+	WHERE emp.name =~ '.*z$' 
+	RETURN emp
+
+8) CQL - Delete and Remove
+Main Difference between Neo4j CQL DELETE and REMOVE commands:
+DELETE operation is used to delete Nodes and associated Relationships.
+REMOVE operation is used to remove labels and properties.
+
+8.1) CREATE (book:Book {id:122,title:"Neo4j Tutorial",pages:340,price:250})
+8.2)	MATCH (book:Book) 
+	REMOVE book.pages 
+	RETURN book
+
+9) CQL - Set
+Add new properties to existing Node or Relationship
+Add or Update Properties values
+Ex:
+	MATCH (book:Book) 
+	WHERE book.id=122
+	SET book.pages=1500, book.price=500
+	RETURN book
+
+10) CQL - SORTING
+Neo4j CQL has provided "ORDER BY" Clause in MATCH Command to sort the results returned by a MATCH query.
+Ex:
+	MATCH(emp:Employee) 
+	RETURN emp.empid,emp.name,emp.deptno,emp.salary 
+	ORDER BY emp.salary 
+	DESC
+
+11) CQL - UNION and UNION ALL
+UNION Clause :- It combines and returns common rows from two set of results into a single set of results. It does not return duplicate rows from two nodes.
+UNION ALL Clause :- It combines and returns all rows from two set of results into a single set of results. It returns duplicate rows also from two nodes.
+Ex:
+	MATCH (cc:CreditCard)
+	RETURN cc.id as id,cc.number as number,cc.name as name,
+	cc.valid_from as valid_from,cc.valid_to as valid_to
+	UNION ALL
+	MATCH (dc:DebitCard)
+	RETURN dc.id as id,dc.number as number,dc.name as name,
+	dc.valid_from as valid_from,dc.valid_to as valid_to
+
+12) CQL - LIMIT
+Neo4j CQL has provided "LIMIT" Clause to filter or limit the number of rows return by a query.
+It trims the results from the bottom of the CQL Query Result Set.
+Ex:
+	MATCH(emp:Employee) 
+	RETURN emp.empid,emp.name,emp.deptno,emp.salary
+	LIMIT 2
+
+13) CQL - NULL
+Neo4j CQL treats null value as missing value or undefined value to properties of a Node or Relationship.
+Ex:
+	MATCH (e:Employee) 
+	WHERE e.id IS NOT NULL
+	RETURN e.id,e.name,e.sal,e.deptno
+
+14) CQL - IN Operator
+Like SQL, Neo4j CQL has provided an IN operator to give a collection of values to CQL Commands
+Ex:
+	MATCH (e:Employee) 
+	WHERE e.id IN [1001,1002]
+	RETURN e.id,e.name,e.sal,e.deptno
+15) CQL - Graph Font
+We use Neo4j Data Browser to execute and view results of Neo4j CQL Commands or Queries.
+Ex: 
+	Match (cc:CreditCard)-[r]-() RETURN r
+
+16)  List all nodes and their relationships:
+	MATCH (n)-[r]->(m)
+	RETURN n AS FROM , r AS `->`, m AS to;
+
+17) Count relationship types:
+	MATCH (n)
+	RETURN count(*);
+
