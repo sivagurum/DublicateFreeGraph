@@ -61,9 +61,10 @@ public class TestBookFinder {
 			
 			bFinderService.findNodes(graphDb,BookSearchUtility.BookProperty.BOOK_KEYWORD.toString(),"1996");
 						
-			List<String> searchResult = bFinderService.searchBookAllResult(graphDb, "1996");
+			List<String> searchResult = bFinderService.searchBookAllResult(graphDb, "1996+Michael");
 			System.out.println(" **** "+searchResult);
-		} catch (Exception e) {			
+		} catch (Exception e) {
+			System.out.println(" *** Please Shutdown Neo4j Db Before Run this Program *** ");
 			e.printStackTrace();
 		}
 

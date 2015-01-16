@@ -205,17 +205,20 @@ public class BookFinderServiceImpl implements BookFinderService{
 		
 	}
 	
-	public String queryBuilder(String propertyName,String findWord){
-		String[] findWords = findWord.split("-");
+	private String queryBuilder(String propertyName,String findWord){
+		String[] findWords = findWord.split("\\+");
 		StringBuilder queryNew = new StringBuilder();
 		queryNew.append("MATCH (book:"+BookNodeLabel.Book+") WHERE ");
 		
 		for(String word:findWords){
-			queryNew.append(" UPPER(book."+propertyName+") =~ UPPER('.*"+word.trim()+".*$') ");
-			queryNew.append(" OR ");
+			if(word != null && word.trim().length()>0){
+				queryNew.append(" UPPER(book."+propertyName+") =~ UPPER('.*"+word.trim()+".*$') ");
+				queryNew.append(" OR ");
+			}
 		}
 		queryNew.delete(queryNew.length()-3, queryNew.length());
 		queryNew.append("RETURN book");
+		logger.info("Query --> "+queryNew.toString());
 		//String query = "MATCH (book:"+BookNodeLabel.Book+") WHERE UPPER(book."+propertyName+") =~ UPPER('.*"+findWord+".*$') RETURN book";
 		return queryNew.toString();
 	}
@@ -228,8 +231,10 @@ public class BookFinderServiceImpl implements BookFinderService{
 	 */
 	public ResourceIterator<Node> findNodes(GraphDatabaseService graphDb,String propertyName,String findWord){
 		try (Transaction tx = graphDb.beginTx()){
+			BookFinderServiceImpl bookFinderServiceImpl = new BookFinderServiceImpl();
+			String query = bookFinderServiceImpl.queryBuilder(propertyName, findWord);
 			//String query = "MATCH (book:Book) WHERE UPPER(book.BOOK_KEYWORD) =~ UPPER('.*1996.*$') RETURN book";
-		  	String query = "MATCH (book:"+BookNodeLabel.Book+") WHERE UPPER(book."+propertyName+") =~ UPPER('.*"+findWord+".*$') RETURN book";
+		  	//String query = "MATCH (book:"+BookNodeLabel.Book+") WHERE UPPER(book."+propertyName+") =~ UPPER('.*"+findWord+".*$') RETURN book";
 		   	ExecutionEngine engine = new ExecutionEngine(graphDb);
 		   	ExecutionResult result = engine.execute(query);
 		   	ResourceIterator<Node> resourceIterator = result.columnAs("book"); 
